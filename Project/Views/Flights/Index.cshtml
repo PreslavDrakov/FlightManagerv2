@@ -1,0 +1,105 @@
+﻿@model FlightsIndexViewModel
+@{ ViewData["Title"] = "Index"; }
+
+<h1>Flights</h1>
+<br>
+@if (User.IsInRole("Admin")) { 
+<a asp-action="Create">Create New Flight</a>
+ }
+<br>
+@using (Html.BeginForm())
+{
+<label>Search city: </label>
+                @Html.TextBox("SearchString");
+<input type="submit" value="Search" />
+<a asp-action="Index">Resume</a>
+}
+
+<table class="table">
+    <tr>
+        <th>Destination City</th>
+        <th>Departure City</th>
+        <th>Departure Time</th>
+        <th>Travel Time</th>
+        <th>Plane Type</th>
+        <th>Plane ID</th>
+        <th>Captain Name</th>
+        <th>Plane Capacity</th>
+        <th>Business Class Capacity</th>
+    </tr>
+    @foreach (FlightIndexViewModel flight in Model.Flights)
+    {
+<tr>
+    <td>@flight.DestinationCity</td>
+    <td>@flight.DepartureCity</td>
+    <td>@flight.DepartureTime</td>
+    <td>@flight.TravelTime hours</td>
+    <td>@flight.PlaneType</td>
+    <td>@flight.PlaneID</td>
+    <td>@flight.PilotName</td>
+    <td>@flight.PlaneCapacity</td>
+    <td>@flight.BusinessClassCapacity</td>
+    <td class="text-right">
+        <div class="btn-group">
+            <a class="dropdown-item" asp-controller="FlightBookings" asp-route-id="@flight.FlightId" asp-action="Book"><i class="fas fa-trash-alt"></i>Book</a>
+            @if (User.Identity.IsAuthenticated)
+            {
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Action
+                </button>
+                                    <div class="dropdown-menu shadow animated--grow-in">
+                                        <form class="d-inline">
+
+                                            <a class="dropdown-item" asp-route-id="@flight.FlightId" asp-action="Details"><i class="fas fa-trash-alt"></i>Details</a>
+                                        </form>
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                    <a style='margin-right:16px' asp-action="Edit" asp-route-id="@flight.FlightId" class="dropdown-item"> <i class="fas fa-wrench"></i> Edit </a>
+                                            <a style='margin-right:16px' asp-action="Delete" asp-route-id="@flight.FlightId" class="dropdown-item"> <i class="fas fa-wrench"></i> Delete </a>}
+                                    </div>
+                                }
+
+        </div>
+        </td>
+</tr>}
+</table>
+
+
+    <div class="float-left">
+        <div class="pages">
+            @for (int i = 1; i <= Model.PagesCount; i++)
+            {
+                if (Model.PageNumber == i)
+                {
+<a class="disabled"><div class="page">@i</div></a> }
+else
+{
+<a asp-action="Index" asp-route-pageSize="@Model.PageSize" asp-route-page="@i"><div class="page">@i</div></a>}
+}
+        </div>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row">
+            Page @Model.PageNumber of @Model.PagesCount
+        </div>
+    </div>
+    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white mb-3 float-right">
+        <div class="container">
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row">
+                <span style="margin-right: 5%">Show: </span>
+                @switch (Model.PageSize)
+                {
+                    case 25:
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="10">10</a></div>
+                        <div class="page"><a class="disabled">25</a></div>
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="50">50</a></div> break;
+                    case 50:
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="10">10</a></div>
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="25">25</a></div>
+                        <div class="page"><a class="disabled">50</a></div> break;
+                    default:
+                        <div class="page"><a class="disabled">10</a></div>
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="25">25</a></div>
+                        <div class="page"><a asp-action="Index" asp-route-pageSize="50">50</a></div>break;
+                }
+            </div>
+        </div>
+    </nav>
